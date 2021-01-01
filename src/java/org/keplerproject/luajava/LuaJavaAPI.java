@@ -50,15 +50,13 @@ public final class LuaJavaAPI
    * @param methodName the name of the method
    * @return number of returned objects
    */
-  public static int objectIndex(int luaState, Object obj, String methodName)
+  public static int objectIndex(long l, Object obj, String methodName)
       throws LuaException
   {
-    LuaState L = LuaStateFactory.getExistingState(luaState);
-
+    LuaState L = LuaState.attach(l);
     synchronized (L)
     {
       int top = L.getTop();
-
       Object[] objs = new Object[top - 1];
       Method method = null;
 
@@ -77,7 +75,7 @@ public final class LuaJavaAPI
         method = getMethod(L, clazz, methodName, objs, top);
       }
       else
-      {
+      {	
         clazz = obj.getClass();
         method = getMethod(L, clazz, methodName, objs, top);
       }
@@ -169,9 +167,9 @@ public final class LuaJavaAPI
    * the number used will be (index - 1)
    * @return number of returned objects
    */
-  public static int arrayIndex(int luaState, Object obj, int index) throws LuaException
+  public static int arrayIndex(long luaState, Object obj, int index) throws LuaException
   {
-    LuaState L = LuaStateFactory.getExistingState(luaState);
+    LuaState L = LuaState.attach(luaState);
 
     synchronized (L)
     {
@@ -199,10 +197,10 @@ public final class LuaJavaAPI
    * @return number of returned objects
    * @throws LuaException
    */
-  public static int classIndex(int luaState, Class clazz, String searchName)
+  public static int classIndex(long luaState, Class clazz, String searchName)
       throws LuaException
   {
-    synchronized (LuaStateFactory.getExistingState(luaState))
+    synchronized (LuaState.attach(luaState))
     {
       int res;
 
@@ -234,10 +232,10 @@ public final class LuaJavaAPI
    * @return number of returned objects
    * @throws LuaException
    */
-  public static int objectNewIndex(int luaState, Object obj, String fieldName)
+  public static int objectNewIndex(long luaState, Object obj, String fieldName)
     throws LuaException
   {
-    LuaState L = LuaStateFactory.getExistingState(luaState);
+    LuaState L = LuaState.attach(luaState);
 
     synchronized (L)
     {
@@ -296,10 +294,10 @@ public final class LuaJavaAPI
    * @return number of returned objects
    * @throws LuaException
    */
-  public static int arrayNewIndex(int luaState, Object obj, int index)
+  public static int arrayNewIndex(long luaState, Object obj, int index)
     throws LuaException
   {
-    LuaState L = LuaStateFactory.getExistingState(luaState);
+    LuaState L = LuaState.attach(luaState);
 
     synchronized (L)
     {
@@ -327,10 +325,10 @@ public final class LuaJavaAPI
    * @return number of returned objects
    * @throws LuaException
    */
-  public static int javaNewInstance(int luaState, String className)
+  public static int javaNewInstance(long luaState, String className)
       throws LuaException
   {
-    LuaState L = LuaStateFactory.getExistingState(luaState);
+    LuaState L = LuaState.attach(luaState);
 
     synchronized (L)
     {
@@ -359,9 +357,9 @@ public final class LuaJavaAPI
    * @return number of returned objects
    * @throws LuaException
    */
-  public static int javaNew(int luaState, Class clazz) throws LuaException
+  public static int javaNew(long luaState, Class clazz) throws LuaException
   {
-    LuaState L = LuaStateFactory.getExistingState(luaState);
+    LuaState L = LuaState.attach(luaState);
 
     synchronized (L)
     {
@@ -382,10 +380,10 @@ public final class LuaJavaAPI
    * @return number of returned objects
    * @throws LuaException
    */
-  public static int javaLoadLib(int luaState, String className, String methodName)
+  public static int javaLoadLib(long luaState, String className, String methodName)
   	throws LuaException
   {
-    LuaState L = LuaStateFactory.getExistingState(luaState);
+    LuaState L = LuaState.attach(luaState);
     
     synchronized (L)
     {
@@ -493,10 +491,10 @@ public final class LuaJavaAPI
    * @param fieldName name of the field to be inpected
    * @return number of returned objects
    */
-  public static int checkField(int luaState, Object obj, String fieldName)
+  public static int checkField(long luaState, Object obj, String fieldName)
   	throws LuaException
   {
-    LuaState L = LuaStateFactory.getExistingState(luaState);
+    LuaState L = LuaState.attach(luaState);
 
     synchronized (L)
     {
@@ -555,9 +553,9 @@ public final class LuaJavaAPI
    * @param methodName name of the field to be inpected
    * @return number of returned objects
    */
-  private static int checkMethod(int luaState, Object obj, String methodName)
+  private static int checkMethod(long luaState, Object obj, String methodName)
   {
-    LuaState L = LuaStateFactory.getExistingState(luaState);
+    LuaState L = LuaState.attach(luaState);
 
     synchronized (L)
     {
@@ -592,10 +590,10 @@ public final class LuaJavaAPI
    * @return number of returned objects
    * @throws LuaException
    */
-  public static int createProxyObject(int luaState, String implem)
+  public static int createProxyObject(long luaState, String implem)
     throws LuaException
   {
-    LuaState L = LuaStateFactory.getExistingState(luaState);
+    LuaState L = LuaState.attach(luaState);
 
     synchronized (L)
     {

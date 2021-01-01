@@ -49,6 +49,11 @@ public final class LuaStateFactory
 	private LuaStateFactory()
 	{}
 	
+	public synchronized static LuaState attachLuaState(long ptr)
+	{
+		LuaState L=LuaState.attach(ptr);
+		return L;
+	}
 	/**
 	 * Method that creates a new instance of LuaState
 	 * @return LuaState
@@ -70,7 +75,10 @@ public final class LuaStateFactory
 	 */
 	public synchronized static LuaState getExistingState(int index)
 	{
-		return (LuaState) states.get(index);
+					if (index<states.size()){
+						return (LuaState) states.get(index);
+					}
+					return null;
 	}
 	
 	/**

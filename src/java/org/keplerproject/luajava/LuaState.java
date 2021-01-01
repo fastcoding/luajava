@@ -100,6 +100,8 @@ public class LuaState
     luajava_open(luaState, stateId);
     this.stateId = stateId;
   }
+  
+	public LuaState(){}
 
   /**
    * Receives a existing state and initializes it
@@ -111,7 +113,15 @@ public class LuaState
     this.stateId = LuaStateFactory.insertLuaState(this);
     luajava_open(luaState, stateId);
   }
+   public static synchronized LuaState attach(long ptr)
+	 {
+			LuaState st=new LuaState();
+ 			st.luaState =CPtr.attach(ptr);
+			st.stateId=-1;
+			return st;
+	 }
 
+	
   /**
    * Closes state and removes the object from the LuaStateFactory
    */

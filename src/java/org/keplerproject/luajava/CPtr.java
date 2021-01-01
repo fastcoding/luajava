@@ -52,6 +52,12 @@ public class CPtr
 		return peer == ((CPtr)other).peer;
    }
 
+	public synchronized static CPtr attach(long d)
+	{
+     CPtr ptr=new CPtr();
+		ptr.peer=d;
+	  return ptr;
+	}	
 
     /* Pointer value of the real C pointer. Use long to be 64-bit safe. */
     private long peer;

@@ -7,3 +7,8 @@ It allows Java components to be accessed from Lua using the same syntax that is 
 for declarations or any kind of preprocessing.  LuaJava also allows Java to implement an interface using Lua. This way any interface can be
 implemented in Lua and passed as parameter to any method, and when called, the equivalent function will be called in Lua, and it's result 
 passed back to Java.
+
+added by hanxi:
+on macos, luajit v2.1 has to be used - or , crash at luaL_newstate()
+bugfix:
+unable to callback to java object in coroutine: replaced getExistingState with attach(pointer) to create a new LuaState object in java

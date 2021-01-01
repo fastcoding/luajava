@@ -22,11 +22,23 @@ frame:show()
 --
 -- Listeners
 --
+cor=coroutine.wrap(function()
+   for i=1,100 do
+	   coroutine.yield('result#'..i)
+	   print('yield returned')
+	   local s=console:getText()
+	   print('called get text:',s)
+  	   pcall(loadstring(s))
+   end
+end)
+
+cor()
 
 execute_cb = { 
 actionPerformed = function(ev)
   print("execute")
-  pcall(loadstring(console:getText()))
+  local a=cor(console:getText())
+  print('execute got:',a)
 end
 }
 

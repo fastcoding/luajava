@@ -1,14 +1,15 @@
 #############################################################
 #Linux/BSD/Mac
-LUA_DIR= /usr/local/share/lua/5.1.1
-LUA_LIBDIR= /usr/local/lib
-LUA_INCLUDES= /usr/local/include
+LUA_DIR= /usr/share/lua/5.1
+LUA_LIBDIR= /usr/lib
+LUA_INCLUDES= /usr/include/luajit-2.1
+JAVA_HOME=/usr/lib/jvm/java-8-openjdk
 JDK= $(JAVA_HOME)
 # For Mac OS, comment the above line and uncomment this one
 #JDK=/Library/Java/Home
 
 # Full path to Lua static library
-LIB_LUA=$(LUA_LIBDIR)/liblua.a
+LIB_LUA=$(LUA_LIBDIR)/libluajit-5.1.so
 
 #Linux/BSD
 LIB_EXT= .so
