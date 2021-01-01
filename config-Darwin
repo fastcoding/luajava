@@ -1,0 +1,45 @@
+#############################################################
+#Linux/BSD/Mac
+LUA_DIR= /usr/local/share/lua/5.1
+LUA_LIBDIR= /usr/local/opt/luajit/lib
+LUA_INCLUDES= /usr/local/opt/luajit/include/luajit-2.1
+JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_151.jdk/Contents/Home
+JDK= $(JAVA_HOME)
+# For Mac OS, comment the above line and uncomment this one
+#JDK=/Library/Java/Home
+
+# Full path to Lua static library
+LIB_LUA=$(LUA_LIBDIR)/libluajit-5.1.dylib
+
+#Linux/BSD
+LIB_EXT= .dylib
+#Mac OS
+#LIB_EXT= .jnilib
+
+LIB_PREFIX= lib
+
+#Linux/BSD
+#LIB_OPTION= -shared -fPIC
+#Mac OS
+LIB_OPTION= -dynamiclib -all_load
+
+## On FreeBSD and Mac OS systems, the following line should be commented
+DLLIB= -ldl
+#-O2
+WARN=-g  -Wall -fPIC -W -Waggregate-return -Wcast-align -Wmissing-prototypes -Wnested-externs -Wshadow -Wwrite-strings
+INCS= -I$(JDK)/include -I$(JDK)/include/darwin -I$(LUA_INCLUDES)
+CFLAGS= $(WARN) $(INCS) 
+
+CC= gcc
+
+
+#########################################################
+VERSION= 1.1
+PKG= luajava-$(VERSION)
+TAR_FILE= $(PKG).tar.gz
+ZIP_FILE= $(PKG).zip
+JAR_FILE= $(PKG).jar
+SO_FILE= $(LIB_PREFIX)$(PKG)$(LIB_EXT)
+DIST_DIR= $(PKG)
+
+# $Id: config,v 1.12 2006-12-22 14:06:40 thiago Exp $
