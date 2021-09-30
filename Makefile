@@ -5,15 +5,15 @@ SYSNAME=$(shell uname)
 include ./config-$(SYSNAME)
 
 CLASSES     = \
-	src/java/org/keplerproject/luajava/CPtr.class \
-	src/java/org/keplerproject/luajava/JavaFunction.class \
-	src/java/org/keplerproject/luajava/LuaException.class \
-	src/java/org/keplerproject/luajava/LuaInvocationHandler.class \
-	src/java/org/keplerproject/luajava/LuaJavaAPI.class \
-	src/java/org/keplerproject/luajava/LuaObject.class \
-	src/java/org/keplerproject/luajava/LuaState.class \
-	src/java/org/keplerproject/luajava/LuaStateFactory.class \
-	src/java/org/keplerproject/luajava/Console.class
+	classes/java/org/keplerproject/luajava/CPtr.class \
+	classes/java/org/keplerproject/luajava/JavaFunction.class \
+	classes/java/org/keplerproject/luajava/LuaException.class \
+	classes/java/org/keplerproject/luajava/LuaInvocationHandler.class \
+	classes/java/org/keplerproject/luajava/LuaJavaAPI.class \
+	classes/java/org/keplerproject/luajava/LuaObject.class \
+	classes/java/org/keplerproject/luajava/LuaState.class \
+	classes/java/org/keplerproject/luajava/LuaStateFactory.class \
+	classes/java/org/keplerproject/luajava/Console.class
 
 DOC_CLASSES	= \
 	src/java/org/keplerproject/luajava/JavaFunction.java \
@@ -24,7 +24,7 @@ DOC_CLASSES	= \
 	src/java/org/keplerproject/luajava/LuaStateFactory.java \
 	src/java/org/keplerproject/luajava/Console.java
 
-OBJS        = src/c/luajava.o
+OBJS        = src/c/luajava.o src/c/javavm.o
 .SUFFIXES: .java .class
 
 #
@@ -35,27 +35,28 @@ run: build
 	@echo Build Complete
 	@echo ------------------
 
-build: checkjdk $(JAR_FILE) $(SO_FILE)
+build: $(JAR_FILE) $(SO_FILE)
 
 #
 # Build .class files.
 #
-.java.class:
-	$(JDK)/bin/javac -sourcepath ./src/java $*.java
+classes/java/org/keplerproject/luajava/%.class:src/java/org/keplerproject/luajava/%.java
+	@echo $(JDK)/bin/javac -d classes -sourcepath ./src/java $<
+	$(JDK)/bin/javac -d classes -sourcepath ./src/java $<
 
 #
 # Create the JAR
 #
 $(JAR_FILE): $(CLASSES)
-	cd src/java; \
-	$(JDK)/bin/jar cvf ../../$(JAR_FILE) org/keplerproject/luajava/*.class; \
-	cd ../..;
+	cd classes; \
+	$(JDK)/bin/jar cvf ../$(JAR_FILE) org/keplerproject/luajava/*.class; \
+	cd ..;
   
 #
 # Create the API Documentation
 #
 apidoc:
-	$(JDK)/bin/javadoc -public -classpath src/java/ -quiet -d "doc/us/API" $(DOC_CLASSES)
+	$(JDK)/bin/javadoc -public -classpath classes -quiet -d "doc/us/API" $(DOC_CLASSES)
 
 #
 # Build .c files.
@@ -67,7 +68,8 @@ $(SO_FILE): $(OBJS)
 src/c/luajava.c: src/c/luajava.h
 
 src/c/luajava.h:
-	$(JDK)/bin/javah -o src/c/luajava.h -classpath "$(JAR_FILE)" org.keplerproject.luajava.LuaState
+	$(JDK)/bin/javac -h src/c -classpath "$(JAR_FILE)" ./src/java/org/keplerproject/luajava/LuaState.java
+	mv src/c/org_keplerproject_luajava_LuaState.h src/c/luajava.h
   
 
 ## regras implicitas para compilacao
@@ -79,7 +81,8 @@ $(OBJDIR)/%.o:  %.c
 # Check that the user has a valid JDK install.  This will cause a
 # premature death if JDK is not defined.
 #
-checkjdk: $(JDK)/bin/java
+
+#checkjdk: $(JDK)/bin/java
 
 #
 # Cleanliness.

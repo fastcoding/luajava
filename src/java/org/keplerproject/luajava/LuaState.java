@@ -35,48 +35,48 @@ public class LuaState
 {
   private final static String LUAJAVA_LIB = "luajava-1.1";
 
-  final public static Integer LUA_GLOBALSINDEX  = new Integer(-10002);
-  final public static Integer LUA_REGISTRYINDEX = new Integer(-10000);
+  final public static Integer LUA_GLOBALSINDEX  = Integer.valueOf(-10002);
+  final public static Integer LUA_REGISTRYINDEX = Integer.valueOf(-10000);
 
-  final public static Integer LUA_TNONE     = new Integer(-1);
-  final public static Integer LUA_TNIL      = new Integer(0);
-  final public static Integer LUA_TBOOLEAN  = new Integer(1);
-  final public static Integer LUA_TLIGHTUSERDATA = new Integer(2);
-  final public static Integer LUA_TNUMBER   = new Integer(3);
-  final public static Integer LUA_TSTRING   = new Integer(4);
-  final public static Integer LUA_TTABLE    = new Integer(5);
-  final public static Integer LUA_TFUNCTION = new Integer(6);
-  final public static Integer LUA_TUSERDATA = new Integer(7);
-  final public static Integer LUA_TTHREAD   = new Integer(8);
+  final public static Integer LUA_TNONE     = Integer.valueOf(-1);
+  final public static Integer LUA_TNIL      = Integer.valueOf(0);
+  final public static Integer LUA_TBOOLEAN  = Integer.valueOf(1);
+  final public static Integer LUA_TLIGHTUSERDATA = Integer.valueOf(2);
+  final public static Integer LUA_TNUMBER   = Integer.valueOf(3);
+  final public static Integer LUA_TSTRING   = Integer.valueOf(4);
+  final public static Integer LUA_TTABLE    = Integer.valueOf(5);
+  final public static Integer LUA_TFUNCTION = Integer.valueOf(6);
+  final public static Integer LUA_TUSERDATA = Integer.valueOf(7);
+  final public static Integer LUA_TTHREAD   = Integer.valueOf(8);
 
   /**
    * Specifies that an unspecified (multiple) number of return arguments
    * will be returned by a call.
    */
-  final public static Integer LUA_MULTRET   = new Integer(-1);
+  final public static Integer LUA_MULTRET   = Integer.valueOf(-1);
   
   /*
    * error codes for `lua_load' and `lua_pcall'
    */
 
-  final public static Integer LUA_YIELD    = new Integer(1);
+  final public static Integer LUA_YIELD    = Integer.valueOf(1);
   
   /** a runtime error. */
-  final public static Integer LUA_ERRRUN     = new Integer(2);
+  final public static Integer LUA_ERRRUN     = Integer.valueOf(2);
   
   /** syntax error during pre-compilation. */
-  final public static Integer LUA_ERRSYNTAX = new Integer(3);
+  final public static Integer LUA_ERRSYNTAX = Integer.valueOf(3);
   
   /**
    * memory allocation error. For such errors, Lua does not call 
    * the error handler function.
    */
-  final public static Integer LUA_ERRMEM    = new Integer(4);
+  final public static Integer LUA_ERRMEM    = Integer.valueOf(4);
   
   /**
    * error while running the error handler function.
    */
-  final public static Integer LUA_ERRERR    = new Integer(5);
+  final public static Integer LUA_ERRERR    = Integer.valueOf(5);
 
   /**
    * Opens the library containing the luajava API
@@ -94,34 +94,50 @@ public class LuaState
    * Constructor to instance a new LuaState and initialize it with LuaJava's functions
    * @param stateId
    */
-  protected LuaState(int stateId)
+  public LuaState(int stateId)
   {
     luaState = _open();
-    luajava_open(luaState, stateId);
+    luajava_open(luaState, stateId,false);
     this.stateId = stateId;
   }
-  
-	public LuaState(){}
+
+
+  public LuaState(){}
 
   /**
    * Receives a existing state and initializes it
    * @param luaState
    */
-  protected LuaState(CPtr luaState)
+  public LuaState(CPtr luaState)
   {
     this.luaState = luaState;
     this.stateId = LuaStateFactory.insertLuaState(this);
-    luajava_open(luaState, stateId);
+    luajava_open(luaState, this.stateId,false);
   }
-   public static synchronized LuaState attach(long ptr)
-	 {
-			LuaState st=new LuaState();
- 			st.luaState =CPtr.attach(ptr);
-			st.stateId=-1;
-			return st;
-	 }
-
-	
+  
+   /**
+   * Receives a existing state and stateId initializes it
+   * @param luaState
+   */
+  public LuaState(CPtr luaState, boolean retOnStack)
+  {
+    this.luaState = luaState;
+    this.stateId = LuaStateFactory.addLuaState(this);
+    luajava_open(luaState, this.stateId,retOnStack);
+  }
+ 
+  public static LuaState fromPeer(long ptr)
+  {
+	LuaState existingState=LuaStateFactory.existsLuaState(ptr);
+	if (existingState!=null){	
+		return existingState;
+	}
+ 	return new LuaState(CPtr.attach(ptr),false);
+  }	
+  /// called by openLuaJava, leave luajava on stack 
+  public static void attachPeer(long ptr){
+	 new LuaState(CPtr.attach(ptr),true);
+  } 
   /**
    * Closes state and removes the object from the LuaStateFactory
    */
@@ -133,7 +149,7 @@ public class LuaState
   }
   
   /**
-   * Returns <code>true</code> if state is closed.
+   * @return Returns <code>true</code> if state is closed.
    */
   public synchronized boolean isClosed()
   {
@@ -220,14 +236,14 @@ public class LuaState
   private synchronized native int _status(CPtr ptr);
   
   // Gargabe Collection Functions
-  final public static Integer LUA_GCSTOP       = new Integer(0);
-  final public static Integer LUA_GCRESTART    = new Integer(1);
-  final public static Integer LUA_GCCOLLECT    = new Integer(2);
-  final public static Integer LUA_GCCOUNT      = new Integer(3);
-  final public static Integer LUA_GCCOUNTB     = new Integer(4);
-  final public static Integer LUA_GCSTEP       = new Integer(5);
-  final public static Integer LUA_GCSETPAUSE   = new Integer(6);
-  final public static Integer LUA_GCSETSTEPMUL = new Integer(7);
+  final public static Integer LUA_GCSTOP       = Integer.valueOf(0);
+  final public static Integer LUA_GCRESTART    = Integer.valueOf(1);
+  final public static Integer LUA_GCCOLLECT    = Integer.valueOf(2);
+  final public static Integer LUA_GCCOUNT      = Integer.valueOf(3);
+  final public static Integer LUA_GCCOUNTB     = Integer.valueOf(4);
+  final public static Integer LUA_GCSTEP       = Integer.valueOf(5);
+  final public static Integer LUA_GCSETPAUSE   = Integer.valueOf(6);
+  final public static Integer LUA_GCSETSTEPMUL = Integer.valueOf(7);
   private synchronized native int  _gc(CPtr ptr, int what, int data);
 
   // Miscellaneous Functions
@@ -845,7 +861,7 @@ public class LuaState
    * @param cptr
    * @param stateId
    */
-  private synchronized native void luajava_open(CPtr cptr, int stateId);
+  private synchronized native void luajava_open(CPtr cptr, int stateId, boolean retOnStack);
   /**
    * Gets a Object from a userdata
    * @param L
@@ -933,7 +949,7 @@ public class LuaState
 
   /**
    * Pushes a JavaFunction into the state stack
-   * @param func
+   * @param func java function
    */
   public void pushJavaFunction(JavaFunction func) throws LuaException
   {
@@ -1011,7 +1027,7 @@ public class LuaState
 
 		if (isBoolean(idx))
 		{
-			obj = new Boolean(toBoolean(idx));
+			obj = Boolean.valueOf(toBoolean(idx));
 		}
 		else if (type(idx) == LuaState.LUA_TSTRING.intValue())
 		{
@@ -1027,7 +1043,7 @@ public class LuaState
 		}
 		else if (type(idx) == LuaState.LUA_TNUMBER.intValue())
 		{
-				obj = new Double(toNumber(idx));
+				obj = Double.valueOf(toNumber(idx));
 		}
 		else if (isUserdata(idx))
 		{
@@ -1050,7 +1066,7 @@ public class LuaState
 
 	/**
 	 * Creates a reference to an object in the variable globalName
-	 * @param globalName
+	 * @param globalName variable name in Lua
 	 * @return LuaObject
 	 */
 	public LuaObject getLuaObject(String globalName)
@@ -1134,15 +1150,15 @@ public class LuaState
     {
       if (retType == Integer.TYPE)
       {
-        return new Integer(db.intValue());
+        return Integer.valueOf(db.intValue());
       }
       else if (retType == Long.TYPE)
       {
-        return new Long(db.longValue());
+        return Long.valueOf(db.longValue());
       }
       else if (retType == Float.TYPE)
       {
-        return new Float(db.floatValue());
+        return Float.valueOf(db.floatValue());
       }
       else if (retType == Double.TYPE)
       {
@@ -1150,11 +1166,11 @@ public class LuaState
       }
       else if (retType == Byte.TYPE)
       {
-        return new Byte(db.byteValue());
+        return Byte.valueOf(db.byteValue());
       }
       else if (retType == Short.TYPE)
       {
-        return new Short(db.shortValue());
+        return Short.valueOf(db.shortValue());
       }
     }
     else if (retType.isAssignableFrom(Number.class))
@@ -1162,15 +1178,15 @@ public class LuaState
       // Checks all possibilities of number types
       if (retType.isAssignableFrom(Integer.class))
       {
-        return new Integer(db.intValue());
+        return Integer.valueOf(db.intValue());
       }
       else if (retType.isAssignableFrom(Long.class))
       {
-        return new Long(db.longValue());
+        return Long.valueOf(db.longValue());
       }
       else if (retType.isAssignableFrom(Float.class))
       {
-        return new Float(db.floatValue());
+        return Float.valueOf(db.floatValue());
       }
       else if (retType.isAssignableFrom(Double.class))
       {
@@ -1178,11 +1194,11 @@ public class LuaState
       }
       else if (retType.isAssignableFrom(Byte.class))
       {
-        return new Byte(db.byteValue());
+        return Byte.valueOf(db.byteValue());
       }
       else if (retType.isAssignableFrom(Short.class))
       {
-        return new Short(db.shortValue());
+        return Short.valueOf(db.shortValue());
       }
     }
     

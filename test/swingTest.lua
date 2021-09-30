@@ -16,8 +16,8 @@ BorderLayout = luajava.bindClass("java.awt.BorderLayout")
 
 frame:setDefaultCloseOperation(frame.EXIT_ON_CLOSE);
 
-frame:getContentPane():add(console, BorderLayout.NORTH);
-frame:getContentPane():add(buttons_pn, BorderLayout.SOUTH);
+frame:getContentPane():add(console, BorderLayout.CENTER);
+frame:getContentPane():add(buttons_pn, BorderLayout.PAGE_END);
 frame:pack()
 frame:show()
 

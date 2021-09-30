@@ -75,7 +75,7 @@ public abstract class JavaFunction
 	 * global variable the JavaFunction specified.
 	 * @param name name of the function.
 	 */
-	public void register(String name) throws LuaException
+	public void register(String name) throws LuaException 
 	{
 	  synchronized (L)
 	  {

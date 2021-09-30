@@ -49,11 +49,21 @@ public final class LuaStateFactory
 	private LuaStateFactory()
 	{}
 	
-	public synchronized static LuaState attachLuaState(long ptr)
+	/**
+	 * attach luastate to ptr, open luajava and leave the table on stack
+	 */
+	public synchronized static void openLuajava(long ptr)
 	{
-		LuaState L=LuaState.attach(ptr);
-		return L;
+		LuaState.attachPeer(ptr);
 	}
+
+	public synchronized static int addLuaState(LuaState L)
+	{
+		int i = getNextStateIndex();
+		states.add(i, L);
+		return i;
+	}	
+	
 	/**
 	 * Method that creates a new instance of LuaState
 	 * @return LuaState
@@ -75,10 +85,30 @@ public final class LuaStateFactory
 	 */
 	public synchronized static LuaState getExistingState(int index)
 	{
-					if (index<states.size()){
-						return (LuaState) states.get(index);
-					}
-					return null;
+			if (index<states.size()){
+				return (LuaState) states.get(index);
+			}
+			return null;
+	}
+
+	/**
+	 * Returns the LuaState if the given LuaState exists, null otherwise.
+	 * @param peer
+	 * @return LuaState
+	 */
+	public synchronized static LuaState existsLuaState(long ptr)
+	{
+		for (int i = 0 ; i < states.size() ; i++)
+		{
+			LuaState state = (LuaState) states.get(i);
+			
+			if (state != null)
+			{
+				if (state.getCPtrPeer() == ptr)
+					return state;
+			}
+		}
+		return null;
 	}
 	
 	/**

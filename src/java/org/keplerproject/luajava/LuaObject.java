@@ -196,7 +196,7 @@ public class LuaObject
 		{
 			L.pushValue(index);
 			int key = L.Lref(LuaState.LUA_REGISTRYINDEX.intValue());
-			ref = new Integer(key);
+			ref = Integer.valueOf(key);
 		}
 	}
 
@@ -379,7 +379,7 @@ public class LuaObject
 	}
 
 	/**
-	 * If <code>this</code> is a table or userdata tries to get
+	 * @return If <code>this</code> is a table or userdata tries to get
 	 * a field value.
 	 */
 	public LuaObject getField(String field) throws LuaException

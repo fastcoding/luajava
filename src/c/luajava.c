@@ -1962,7 +1962,7 @@ static void set_info (lua_State *L) {
 ************************************************************************/
 
 JNIEXPORT void JNICALL Java_org_keplerproject_luajava_LuaState_luajava_1open
-  ( JNIEnv * env , jobject jobj , jobject cptr , jint stateId )
+  ( JNIEnv * env , jobject jobj , jobject cptr , jint stateId, jboolean retOnStack )
 {
   lua_State* L;
 
@@ -1976,11 +1976,13 @@ JNIEXPORT void JNICALL Java_org_keplerproject_luajava_LuaState_luajava_1open
 
 
   lua_newtable( L );
-
-  lua_setglobal( L , "luajava" );
-
-  lua_getglobal( L , "luajava" );
   
+  if (!retOnStack){
+    lua_setglobal( L , "luajava" );
+
+  	lua_getglobal( L , "luajava" );
+  }
+
   set_info( L);
   
   lua_pushstring( L , "bindClass" );
@@ -2003,22 +2005,24 @@ JNIEXPORT void JNICALL Java_org_keplerproject_luajava_LuaState_luajava_1open
   lua_pushcfunction( L , &createProxy );
   lua_settable( L , -3 );
 
-  lua_pop( L , 1 );
-
+  if (!retOnStack) lua_pop( L , 1 );
+  else {
+	//	  fprintf(stderr,"ret on stack - > luajava\n");
+  }
   if ( luajava_api_class == NULL )
   {
     tempClass = ( *env )->FindClass( env , "org/keplerproject/luajava/LuaJavaAPI" );
 
     if ( tempClass == NULL )
     {
-      fprintf( stderr , "Could not find LuaJavaAPI class\n" );
-      exit( 1 );
+	  if (retOnStack) lua_pop(L,1);
+      luaL_error(L, "Could not find LuaJavaAPI class" );      
     }
 
     if ( ( luajava_api_class = ( *env )->NewGlobalRef( env , tempClass ) ) == NULL )
     {
-      fprintf( stderr , "Could not bind to LuaJavaAPI class\n" );
-      exit( 1 );
+	  if (retOnStack) lua_pop(L,1);
+      luaL_error(L, "Could not bind to LuaJavaAPI class" );
     }
   }
 
@@ -2028,14 +2032,14 @@ JNIEXPORT void JNICALL Java_org_keplerproject_luajava_LuaState_luajava_1open
 
     if ( tempClass == NULL )
     {
-      fprintf( stderr , "Could not find JavaFunction interface\n" );
-      exit( 1 );
+	  if (retOnStack) lua_pop(L,1);
+      luaL_error(L, "Could not find JavaFunction interface" );
     }
 
     if ( ( java_function_class = ( *env )->NewGlobalRef( env , tempClass ) ) == NULL )
     {
-      fprintf( stderr , "Could not bind to JavaFunction interface\n" );
-      exit( 1 );
+	  if (retOnStack) lua_pop(L,1);
+      luaL_error(L, "Could not bind to JavaFunction interface" );
     }
   }
 
@@ -2044,8 +2048,8 @@ JNIEXPORT void JNICALL Java_org_keplerproject_luajava_LuaState_luajava_1open
     java_function_method = ( *env )->GetMethodID( env , java_function_class , "execute" , "()I");
     if ( !java_function_method )
     {
-      fprintf( stderr , "Could not find <execute> method in JavaFunction\n" );
-      exit( 1 );
+	  if (retOnStack) lua_pop(L,1);
+      luaL_error(L, "Could not find <execute> method in JavaFunction" );
     }
   }
 
@@ -2055,16 +2059,16 @@ JNIEXPORT void JNICALL Java_org_keplerproject_luajava_LuaState_luajava_1open
 
     if ( tempClass == NULL )
     {
-      fprintf( stderr , "Error. Couldn't bind java class java.lang.Throwable\n" );
-      exit( 1 );
+	  if (retOnStack) lua_pop(L,1);
+      luaL_error(L, "Error. Couldn't bind java class java.lang.Throwable" );
     }
 
     throwable_class = ( *env )->NewGlobalRef( env , tempClass );
 
     if ( throwable_class == NULL )
     {
-      fprintf( stderr , "Error. Couldn't bind java class java.lang.Throwable\n" );
-      exit( 1 );
+	  if (retOnStack) lua_pop(L,1);
+      luaL_error(L, "Error. Couldn't bind java class java.lang.Throwable" );
     }
   }
 
@@ -2075,8 +2079,8 @@ JNIEXPORT void JNICALL Java_org_keplerproject_luajava_LuaState_luajava_1open
 
     if ( get_message_method == NULL )
     {
-      fprintf(stderr, "Could not find <getMessage> method in java.lang.Throwable\n");
-      exit(1);
+	  if (retOnStack) lua_pop(L,1);
+      luaL_error(L, "Could not find <getMessage> method in java.lang.Throwable");
     }
   }
 
@@ -2086,16 +2090,16 @@ JNIEXPORT void JNICALL Java_org_keplerproject_luajava_LuaState_luajava_1open
 
     if ( tempClass == NULL )
     {
-      fprintf( stderr , "Error. Coundn't bind java class java.lang.Class\n" );
-      exit( 1 );
+	  if (retOnStack) lua_pop(L,1);
+      luaL_error(L, "Error. Coundn't bind java class java.lang.Class" );
     }
 
     java_lang_class = ( *env )->NewGlobalRef( env , tempClass );
 
     if ( java_lang_class == NULL )
     {
-      fprintf( stderr , "Error. Couldn't bind java class java.lang.Throwable\n" );
-      exit( 1 );
+	  if (retOnStack) lua_pop(L,1);
+      luaL_error(L, "Error. Couldn't bind java class java.lang.Throwable" );
     }
   }
 
@@ -2246,10 +2250,8 @@ JNIEXPORT jboolean JNICALL Java_org_keplerproject_luajava_LuaState__1isJavaFunct
 *      Lua Exported Function
 ************************************************************************/
 
-JNIEXPORT jobject JNICALL Java_org_keplerproject_luajava_LuaState__1open
-  (JNIEnv * env , jobject jobj)
-{
-   lua_State * L = luaL_newstate(); //lua_open();
+static jobject openlua(JNIEnv* env,jobject jobj, jlong l){
+   lua_State * L = (lua_State*)l;
    jobject obj;
    jclass tempClass;
 
@@ -2262,6 +2264,13 @@ JNIEXPORT jobject JNICALL Java_org_keplerproject_luajava_LuaState__1open
    }
    return obj;
 
+}
+
+JNIEXPORT jobject JNICALL Java_org_keplerproject_luajava_LuaState__1open
+  (JNIEnv * env , jobject jobj)
+{
+   lua_State * L = luaL_newstate(); //lua_open();
+   return openlua(env,jobj,L);
 }
 
 

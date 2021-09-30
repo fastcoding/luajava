@@ -53,7 +53,7 @@ public final class LuaJavaAPI
   public static int objectIndex(long l, Object obj, String methodName)
       throws LuaException
   {
-    LuaState L = LuaState.attach(l);
+    LuaState L = LuaState.fromPeer(l);
     synchronized (L)
     {
       int top = L.getTop();
@@ -169,7 +169,7 @@ public final class LuaJavaAPI
    */
   public static int arrayIndex(long luaState, Object obj, int index) throws LuaException
   {
-    LuaState L = LuaState.attach(luaState);
+    LuaState L = LuaState.fromPeer(luaState);
 
     synchronized (L)
     {
@@ -200,7 +200,7 @@ public final class LuaJavaAPI
   public static int classIndex(long luaState, Class clazz, String searchName)
       throws LuaException
   {
-    synchronized (LuaState.attach(luaState))
+    synchronized (LuaState.fromPeer(luaState))
     {
       int res;
 
@@ -235,7 +235,7 @@ public final class LuaJavaAPI
   public static int objectNewIndex(long luaState, Object obj, String fieldName)
     throws LuaException
   {
-    LuaState L = LuaState.attach(luaState);
+    LuaState L = LuaState.fromPeer(luaState);
 
     synchronized (L)
     {
@@ -297,7 +297,7 @@ public final class LuaJavaAPI
   public static int arrayNewIndex(long luaState, Object obj, int index)
     throws LuaException
   {
-    LuaState L = LuaState.attach(luaState);
+    LuaState L = LuaState.fromPeer(luaState);
 
     synchronized (L)
     {
@@ -328,7 +328,7 @@ public final class LuaJavaAPI
   public static int javaNewInstance(long luaState, String className)
       throws LuaException
   {
-    LuaState L = LuaState.attach(luaState);
+    LuaState L = LuaState.fromPeer(luaState);
 
     synchronized (L)
     {
@@ -359,7 +359,7 @@ public final class LuaJavaAPI
    */
   public static int javaNew(long luaState, Class clazz) throws LuaException
   {
-    LuaState L = LuaState.attach(luaState);
+    LuaState L = LuaState.fromPeer(luaState);
 
     synchronized (L)
     {
@@ -383,7 +383,7 @@ public final class LuaJavaAPI
   public static int javaLoadLib(long luaState, String className, String methodName)
   	throws LuaException
   {
-    LuaState L = LuaState.attach(luaState);
+    LuaState L = LuaState.fromPeer(luaState);
     
     synchronized (L)
     {
@@ -494,7 +494,7 @@ public final class LuaJavaAPI
   public static int checkField(long luaState, Object obj, String fieldName)
   	throws LuaException
   {
-    LuaState L = LuaState.attach(luaState);
+    LuaState L = LuaState.fromPeer(luaState);
 
     synchronized (L)
     {
@@ -555,7 +555,7 @@ public final class LuaJavaAPI
    */
   private static int checkMethod(long luaState, Object obj, String methodName)
   {
-    LuaState L = LuaState.attach(luaState);
+    LuaState L = LuaState.fromPeer(luaState);
 
     synchronized (L)
     {
@@ -593,7 +593,7 @@ public final class LuaJavaAPI
   public static int createProxyObject(long luaState, String implem)
     throws LuaException
   {
-    LuaState L = LuaState.attach(luaState);
+    LuaState L = LuaState.fromPeer(luaState);
 
     synchronized (L)
     {
@@ -636,7 +636,7 @@ public final class LuaJavaAPI
       {
         okType = false;
       }
-      obj = new Boolean(L.toBoolean(idx));
+      obj = Boolean.valueOf(L.toBoolean(idx));
     }
     else if (L.type(idx) == LuaState.LUA_TSTRING.intValue())
     {
@@ -673,7 +673,7 @@ public final class LuaJavaAPI
     }
     else if (L.type(idx) == LuaState.LUA_TNUMBER.intValue())
     {
-      Double db = new Double(L.toNumber(idx));
+      Double db = Double.valueOf(L.toNumber(idx));
       
       obj = LuaState.convertLuaNumber(db, parameter);
       if (obj == null)

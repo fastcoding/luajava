@@ -1,10 +1,17 @@
 #############################################################
 #Linux/BSD/Mac
-LUA_DIR= /usr/local/share/lua/5.1
-LUA_LIBDIR= /usr/local/opt/luajit/lib
-LUA_INCLUDES= /usr/local/opt/luajit/include/luajit-2.1
-JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_151.jdk/Contents/Home
-JDK= $(JAVA_HOME)
+$(info make on osx)
+LUA_BIN=$(dir $(shell which luajit)) 
+LUA_DIR= $(strip $(LUA_BIN))..
+$(info lua dir: $(LUA_DIR))
+LUA_LIBDIR= $(LUA_DIR)/lib
+LUA_INCLUDES= $(LUA_DIR)/include/luajit-2.1
+JAVA_HOME=$(shell /usr/libexec/java_home) #/Library/Java/JavaVirtualMachines/jdk1.8.0_151.jdk/Contents/Home
+$(info JDK: $(JAVA_HOME))
+JDK:=$(strip $(JAVA_HOME))
+JVM_LIBDIR=$(JDK)/lib/server
+JVM_LDFLAGS=-rpath $(JVM_LIBDIR) -L$(JVM_LIBDIR) -ljvm 
+
 # For Mac OS, comment the above line and uncomment this one
 #JDK=/Library/Java/Home
 
@@ -21,7 +28,7 @@ LIB_PREFIX= lib
 #Linux/BSD
 #LIB_OPTION= -shared -fPIC
 #Mac OS
-LIB_OPTION= -dynamiclib -all_load
+LIB_OPTION= -dynamiclib -all_load $(JVM_LDFLAGS)
 
 ## On FreeBSD and Mac OS systems, the following line should be commented
 DLLIB= -ldl
