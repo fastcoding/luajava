@@ -7,7 +7,7 @@ System = assert(luajava.bindClass)("java.lang.System")
 System.out:println("Hello, world!")
 ok,Console = pcall(luajava.bindClass,'org.keplerproject.luajava.Console')
 if not ok then 
-		print('got class:',Console)
+	print('got class:',Console)
 end
 -- ok,err=pcall(dofile, './test/awtTest.lua')
 Console:main(luajava.newArray('string','./test/awtTest.lua'))
