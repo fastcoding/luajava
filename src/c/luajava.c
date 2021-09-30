@@ -2503,7 +2503,6 @@ JNIEXPORT void JNICALL Java_org_keplerproject_luajava_LuaState__1openLibs
   (JNIEnv * env, jobject jobj , jobject cptr)
 {
    lua_State * L = getStateFromCPtr( env , cptr );
-
    luaL_openlibs( L );
 }
 

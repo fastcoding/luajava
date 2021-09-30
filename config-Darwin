@@ -34,7 +34,7 @@ LIB_OPTION= -dynamiclib -all_load $(JVM_LDFLAGS)
 DLLIB= -ldl
 #-O2
 WARN=-g  -Wall -fPIC -W -Waggregate-return -Wcast-align -Wmissing-prototypes -Wnested-externs -Wshadow -Wwrite-strings
-INCS= -I$(JDK)/include -I$(JDK)/include/darwin -I$(LUA_INCLUDES)
+INCS= -I$(JDK)/include -I$(JDK)/include/darwin $(shell PKG_CONFIG_PATH=$(LUA_DIR)/lib/pkgconfig pkg-config --cflags luajit)
 CFLAGS= $(WARN) $(INCS) 
 
 CC= gcc
