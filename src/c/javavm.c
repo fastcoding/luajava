@@ -15,9 +15,6 @@
 #include <stdint.h>
 #endif
 #include "javavm.h"
-#ifndef luaL_newlib
-   #define luaL_newlib(L, l)       (luaL_newlibtable(L, l), luaL_setfuncs(L, l, 0))
-#endif  
 /*
  * Java VM parameters.
  */
@@ -259,7 +256,8 @@ static const luaL_Reg functions[] = {
  */ 
 LUALIB_API int luaopen_jvm(lua_State *L) {
 	/* Create module */
-	luaL_newlib(L, functions);
+	lua_newtable(L);
+	luaL_register(L, NULL, functions);
 	
 	/* Create metatable */
 	luaL_newmetatable(L, JAVAVM_METATABLE);

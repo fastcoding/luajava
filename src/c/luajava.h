@@ -834,7 +834,7 @@ JNIEXPORT void JNICALL Java_org_keplerproject_luajava_LuaState__1openLibs
 /*
  * Class:     org_keplerproject_luajava_LuaState
  * Method:    luajava_open
- * Signature: (Lorg/keplerproject/luajava/CPtr;I)V
+ * Signature: (Lorg/keplerproject/luajava/CPtr;IZ)V
  */
 JNIEXPORT void JNICALL Java_org_keplerproject_luajava_LuaState_luajava_1open
   (JNIEnv *, jobject, jobject, jint, jboolean);

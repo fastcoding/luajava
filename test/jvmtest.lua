@@ -1,6 +1,6 @@
 local jvm_loader=assert(package.loadlib('./libluajava-1.1.dylib','luaopen_jvm'))
 local javavm =jvm_loader()
-local vm =javavm.create("-Djava.class.path=./luajava-1.1.jar")
+local vm =javavm.create("-Djava.class.path=./luajava-1.1.jar","-XstartOnFirstThread")
 print'create ok'
 local luajava=assert(vm:luajava())
 System = assert(luajava.bindClass)("java.lang.System")

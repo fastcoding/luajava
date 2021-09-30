@@ -10,7 +10,7 @@ JAVA_HOME=$(shell /usr/libexec/java_home) #/Library/Java/JavaVirtualMachines/jdk
 $(info JDK: $(JAVA_HOME))
 JDK:=$(strip $(JAVA_HOME))
 JVM_LIBDIR=$(JDK)/lib/server
-JVM_LDFLAGS=-rpath $(JVM_LIBDIR) -L$(JVM_LIBDIR) -ljvm 
+JVM_LDFLAGS=-rpath $(JDK)/lib -rpath $(JVM_LIBDIR) -L$(JVM_LIBDIR) -ljvm 
 
 # For Mac OS, comment the above line and uncomment this one
 #JDK=/Library/Java/Home

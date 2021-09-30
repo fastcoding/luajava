@@ -24,7 +24,8 @@ DOC_CLASSES	= \
 	src/java/org/keplerproject/luajava/LuaStateFactory.java \
 	src/java/org/keplerproject/luajava/Console.java
 
-OBJS        = src/c/luajava.o src/c/javavm.o
+OBJDIR      = classes
+OBJS        = $(OBJDIR)/luajava.o $(OBJDIR)/javavm.o
 .SUFFIXES: .java .class
 
 #
@@ -75,7 +76,7 @@ src/c/luajava.h:
 
 ## regras implicitas para compilacao
 
-$(OBJDIR)/%.o:  %.c
+$(OBJDIR)/%.o:  src/c/%.c
 	$(CC) -c $(CFLAGS) -o $@ $<
 
 #
@@ -91,6 +92,7 @@ $(OBJDIR)/%.o:  %.c
 clean:
 	rm -f $(JAR_FILE)
 	rm -f $(SO_FILE)
+	rm -rf $(OBJS)
 	rm -rf doc/us/API
 	rm -f src/java/org/keplerproject/luajava/*.class src/c/*.o src/c/luajava.h
 	rm -f $(TAR_FILE) $(ZIP_FILE)
