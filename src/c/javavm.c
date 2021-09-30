@@ -15,7 +15,9 @@
 #include <stdint.h>
 #endif
 #include "javavm.h"
-
+#ifndef luaL_newlib
+   #define luaL_newlib(L, l)       (luaL_newlibtable(L, l), luaL_setfuncs(L, l, 0))
+#endif  
 /*
  * Java VM parameters.
  */
