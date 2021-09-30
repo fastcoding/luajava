@@ -56,6 +56,7 @@ public class Console
                int res = L.LloadFile(args[i]);
                if (res == 0)
                {
+				   System.out.println("console run lua:"+args[i]);
                   res = L.pcall(0, 0, 0);
                }
                if (res != 0)

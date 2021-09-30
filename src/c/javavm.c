@@ -22,7 +22,7 @@
 #define JAVAVM_METATABLE "javavm.metatable"
 #define JAVAVM_VM "javavm.vm"
 #define JAVAVM_MAXOPTIONS 128
-#define JAVAVM_JNIVERSION JNI_VERSION_1_8
+#define JAVAVM_JNIVERSION JNI_VERSION_1_6
 
 /*
  * VM record.
@@ -131,9 +131,9 @@ static int open_luajava(lua_State *L){
 		luaL_error(L,"expects java vm");
 	}
 
-	int getEnvStat = (*(vm->vm))->GetEnv(vm->vm,(void **)&env, JNI_VERSION_1_6);
+	int getEnvStat = (*vm->vm)->GetEnv(vm->vm,(void **)&env, JAVAVM_JNIVERSION);
 	if (getEnvStat == JNI_EDETACHED) {
-        if ((*(vm->vm))->AttachCurrentThread(vm->vm,(void **) &env, NULL) != 0) {
+        if ((*vm->vm)->AttachCurrentThread(vm->vm,(void **) &env, NULL) != 0) {
 			luaL_error(L, "Failed to attach");
         }
     } else if (getEnvStat == JNI_OK) {

@@ -36,6 +36,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "luajava.h"
 #include "lua.h"
 #include "lualib.h"
@@ -1133,12 +1134,12 @@ int gc( lua_State * L )
 int javaBindClass( lua_State * L )
 {
    int top;
-   jmethodID method;
    const char * className;
-   jstring javaClassName;
+  // jstring javaClassName;
    jobject classInstance;
    jthrowable exp;
    JNIEnv * javaEnv;
+   char *clsPath;
 
    top = lua_gettop( L );
 
@@ -1161,16 +1162,27 @@ int javaBindClass( lua_State * L )
       lua_pushstring( L , "Invalid parameter type. String expected." );
       lua_error( L );
    }
+
    className = lua_tostring( L , 1 );
 
-   method = ( *javaEnv )->GetStaticMethodID( javaEnv , java_lang_class , "forName" , 
+   /*method = ( *javaEnv )->GetStaticMethodID( javaEnv , java_lang_class , "forName" , 
                                              "(Ljava/lang/String;)Ljava/lang/Class;" );
 
    javaClassName = ( *javaEnv )->NewStringUTF( javaEnv , className );
 
    classInstance = ( *javaEnv )->CallStaticObjectMethod( javaEnv , java_lang_class ,
                                                          method , javaClassName );
-
+	*/
+   clsPath = strdup(className);
+   {
+		   char *p=clsPath;
+		   while(*p){
+			  if (*p=='.') *p='/';
+			  p++;
+		   }
+   }
+   classInstance = (*javaEnv)->FindClass( javaEnv, clsPath);
+   free(clsPath);
    exp = ( *javaEnv )->ExceptionOccurred( javaEnv );
 
    /* Handles exception */
@@ -1182,7 +1194,7 @@ int javaBindClass( lua_State * L )
       ( *javaEnv )->ExceptionClear( javaEnv );
       jstr = ( *javaEnv )->CallObjectMethod( javaEnv , exp , get_message_method );
 
-      ( *javaEnv )->DeleteLocalRef( javaEnv , javaClassName );
+      //( *javaEnv )->DeleteLocalRef( javaEnv , javaClassName );
 
       if ( jstr == NULL )
       {
@@ -1194,17 +1206,16 @@ int javaBindClass( lua_State * L )
 
       cStr = ( *javaEnv )->GetStringUTFChars( javaEnv , jstr , NULL );
 
-      lua_pushstring( L , cStr );
+      lua_pushfstring( L , "Exception occured when loading class: %s", cStr );
 
       ( *javaEnv )->ReleaseStringUTFChars( javaEnv , jstr, cStr );
 
       lua_error( L );
    }
 
-   ( *javaEnv )->DeleteLocalRef( javaEnv , javaClassName );
+   //( *javaEnv )->DeleteLocalRef( javaEnv , javaClassName );
 
    /* pushes new object into lua stack */
-
    return pushJavaClass( L , classInstance );
 }
 
@@ -1300,6 +1311,100 @@ int createProxy( lua_State * L )
    return ret;
 }
 
+int javaNewArray( lua_State * L )
+{
+   int top;
+   jint ret;
+   jclass clazz;
+   jmethodID method;
+   jthrowable exp;
+   JNIEnv * env;
+   jobjectArray array;
+   int tp;
+   static const char *opts[]={
+	 "string","number","bytearray","object",NULL
+   };
+   top = lua_gettop( L );
+
+   if ( top == 0 )
+   {
+      luaL_error( L,"Error. Invalid number of parameters."  );
+   }
+   
+   tp = luaL_checkoption(L,1,NULL,opts);
+
+   /* Gets the JNI Environment */
+   env = getEnvFromState( L );
+
+   if ( env== NULL )
+   {
+      luaL_error( L,"Invalid JNI Environment."  );
+   }
+
+  	
+   switch (tp){
+    case 0:
+	     array=(*env)->NewObjectArray(env,top-1,
+					 (*env)->FindClass(env, "java/lang/String")				
+					 ,0);
+		 for (int i=1;i<top;i++){
+    	     (*env)->SetObjectArrayElement(env, array,i-1,
+						 (*env)->NewStringUTF(env,lua_tostring(L,i+1))
+						 );
+	 	 }
+		 break;
+    case 1:
+	 array=(*env)->NewDoubleArray(env,top-1);
+	 for (int i=1;i<top;i++){
+		double val=lua_tonumber(L,i+1);
+	 	(*env)->SetDoubleArrayRegion(env,array,i-1, 1, &val );
+	 }
+	 break;
+	case 2:
+	 {
+		size_t len;
+		const char *cStr=luaL_checklstring(L,2,&len);
+	 	array=(*env)->NewByteArray(env,len);
+	 	(*env)->SetByteArrayRegion(env,array,0, len, cStr );
+		break;
+	 }
+	 default:
+	 luaL_error(L,"not implemented");
+	 break;
+   }
+
+   exp = ( *env)->ExceptionOccurred( env);
+
+   /* Handles exception */
+   if ( exp != NULL )
+   {
+      jobject jstr;
+      const char * str;
+      
+      ( *env)->ExceptionClear( env);
+      jstr = ( *env)->CallObjectMethod( env, exp , get_message_method );
+
+      if ( jstr == NULL )
+      {
+         jmethodID methodId;
+
+         methodId = ( *env)->GetMethodID( env, throwable_class , "toString" , "()Ljava/lang/String;" );
+         jstr = ( *env)->CallObjectMethod( env, exp , methodId );
+      }
+
+      str = ( *env )->GetStringUTFChars( env, jstr , NULL );
+
+      lua_pushstring( L , str );
+
+      ( *env)->ReleaseStringUTFChars( env, jstr, str );
+
+      lua_error( L );
+   }
+
+  return pushJavaArray(L, array);
+}
+
+
 /***************************************************************************
 *
 *  Function: javaNew
@@ -1325,20 +1430,7 @@ int javaNew( lua_State * L )
       lua_error( L );
    }
 
-   /* Gets the luaState index */
-/*   lua_pushstring( L , LUAJAVASTATEINDEX );
-   lua_rawget( L , LUA_REGISTRYINDEX );
-
-   if ( !lua_isnumber( L , -1 ) )
-   {
-      lua_pushstring( L , "Impossible to identify luaState id." );
-      lua_error( L );
-   }
-
-   stateIndex = lua_tonumber( L , -1 );
-   lua_pop( L , 1 );
-*/
-   /* Gets the java Class reference */
+     /* Gets the java Class reference */
    if ( !isJavaObject( L , 1 ) )
    {
       lua_pushstring( L , "Argument not a valid Java Class." );
@@ -1422,20 +1514,7 @@ int javaNewInstance( lua_State * L )
 //   lua_Number stateIndex;
    JNIEnv * javaEnv;
 
-   /* Gets the luaState index */
- /*  lua_pushstring( L , LUAJAVASTATEINDEX );
-   lua_rawget( L , LUA_REGISTRYINDEX );
-
-   if ( !lua_isnumber( L , -1 ) )
-   {
-      lua_pushstring( L , "Impossible to identify luaState id." );
-      lua_error( L );
-   }
-
-   stateIndex = lua_tonumber( L , -1 );
-   lua_pop( L , 1 );
-*/
-   /* get the string parameter */
+     /* get the string parameter */
    if ( !lua_isstring( L , 1 ) )
    {
       lua_pushstring( L , "Invalid parameter type. String expected as first parameter." );
@@ -1991,6 +2070,11 @@ JNIEXPORT void JNICALL Java_org_keplerproject_luajava_LuaState_luajava_1open
 
   lua_pushstring( L , "new" );
   lua_pushcfunction( L , &javaNew );
+  lua_settable( L , -3 );
+
+
+  lua_pushstring( L , "newArray" );
+  lua_pushcfunction( L , &javaNewArray );
   lua_settable( L , -3 );
 
   lua_pushstring( L , "newInstance" );

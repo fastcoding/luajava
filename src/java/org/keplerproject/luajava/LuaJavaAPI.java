@@ -120,7 +120,7 @@ public final class LuaJavaAPI
       // If method is null means there isn't one receiving the given arguments
       if (method == null)
       {
-        throw new LuaException("Invalid method call. No such method.");
+        throw new LuaException("Invalid method call. No such method:"+methodName);
       }
 
       Object ret;

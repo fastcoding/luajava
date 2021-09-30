@@ -63,6 +63,7 @@ apidoc:
 #
 $(SO_FILE): $(OBJS)
 	#export MACOSX_DEPLOYMENT_TARGET=10.3; $(CC) $(LIB_OPTION) -o $@ $? $(LIB_LUA)
+	rm -rf $@
 	$(CC) $(LIB_OPTION) -o $@ $? $(LIB_LUA)
 
 src/c/luajava.c: src/c/luajava.h

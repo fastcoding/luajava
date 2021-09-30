@@ -1,4 +1,4 @@
-
+print('awtTest starts')
 frame = luajava.newInstance("java.awt.Frame", "Lua Java Console")
 console = luajava.newInstance("java.awt.TextArea")
 buttons_pn = luajava.newInstance("java.awt.Panel")
@@ -17,8 +17,10 @@ BorderLayout = luajava.bindClass("java.awt.BorderLayout")
 frame:add(BorderLayout.NORTH, console)
 frame:add(BorderLayout.SOUTH, buttons_pn)
 frame:pack()
+--frame:setVisible(true)
 frame:show()
 
+print('frame should be visible now')
 --
 -- Listeners
 --
@@ -81,3 +83,5 @@ end
 
 jproxy = luajava.createProxy("java.awt.event.WindowListener", close_cb)
 frame:addWindowListener(jproxy)
+
+print('awtest endl of src')

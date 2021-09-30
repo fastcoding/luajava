@@ -1,4 +1,5 @@
 #!/bin/sh
-LD_LIBRARY_PATH=$(cd ..;$pwd)
+testdir=$(dirname $0)
+LD_LIBRARY_PATH=$(cd $testdir/..;pwd)
 echo $LD_LIBRARY_PATH
-java -cp "../luajava-1.1.jar" -Djava.library.path=.. org.keplerproject.luajava.Console awtTest.lua
+java -cp "$testdir/../luajava-1.1.jar" -Djava.library.path=$testdir/.. org.keplerproject.luajava.Console $testdir/awtTest.lua
